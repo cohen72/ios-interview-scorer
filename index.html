@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>iOS Interview Readiness Scorer | Are You Ready to Land Your Next iOS Role?</title>
+<meta name="description" content="Score your iOS developer interview readiness in 60 seconds. Built by a 13-year iOS veteran. Get a personalised breakdown across Swift, architecture, CI/CD, and soft skills."/>
+<meta property="og:title" content="iOS Interview Readiness Scorer"/>
+<meta property="og:description" content="Score your iOS developer interview readiness in 60 seconds. Get a personalised breakdown across Swift, architecture, CI/CD, and soft skills."/>
+<meta property="og:type" content="website"/>
+<meta property="og:image" content="https://cohen72.github.io/ios-interview-scorer/og-image.png"/>
+<meta property="og:url" content="https://cohen72.github.io/ios-interview-scorer/"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="iOS Interview Readiness Scorer"/>
+<meta name="twitter:description" content="Score your iOS developer interview readiness in 60 seconds."/>
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --surface: #16171c;
+    --surface2: #1e1f27;
+    --border: #2a2b35;
+    --accent: #5b6ef5;
+    --accent2: #8b5cf6;
+    --green: #22c55e;
+    --yellow: #eab308;
+    --red: #ef4444;
+    --text: #e8e9f0;
+    --muted: #8b8c9a;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif; min-height: 100vh; }
+
+  /* NAV */
+  nav { padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+  .logo { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; color: var(--text); }
+  .logo span { color: var(--accent); }
+  .badge { font-size: 11px; background: var(--surface2); border: 1px solid var(--border); padding: 4px 10px; border-radius: 20px; color: var(--muted); }
+
+  /* HERO */
+  .hero { text-align: center; padding: 64px 24px 48px; max-width: 680px; margin: 0 auto; }
+  .hero h1 { font-size: clamp(28px, 5vw, 44px); font-weight: 800; line-height: 1.15; letter-spacing: -1px; margin-bottom: 16px; background: linear-gradient(135deg, #e8e9f0 0%, #a0a3b8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .hero p { font-size: 17px; color: var(--muted); line-height: 1.65; margin-bottom: 32px; }
+  .hero-meta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 40px; }
+  .pill { font-size: 12px; font-weight: 600; padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); color: var(--muted); background: var(--surface); }
+  .pill.active { border-color: var(--accent); color: var(--accent); background: rgba(91,110,245,0.08); }
+
+  /* QUIZ */
+  .quiz-wrap { max-width: 720px; margin: 0 auto; padding: 0 20px 80px; }
+  .section-label { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .section-label::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+  .question-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 14px; transition: border-color 0.2s; }
+  .question-card:hover { border-color: #3a3b48; }
+  .question-text { font-size: 15px; font-weight: 500; line-height: 1.5; margin-bottom: 18px; }
+  .options { display: grid; gap: 8px; }
+  .option { display: flex; align-items: center; gap: 12px; padding: 11px 16px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; transition: all 0.15s; background: var(--surface2); font-size: 14px; color: var(--muted); user-select: none; }
+  .option:hover { border-color: var(--accent); color: var(--text); }
+  .option.selected { border-color: var(--accent); background: rgba(91,110,245,0.12); color: var(--text); }
+  .option .dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid currentColor; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .option.selected .dot::after { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+
+  /* SUBMIT */
+  .submit-row { text-align: center; padding: 32px 0; }
+  #submitBtn { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; font-size: 16px; font-weight: 700; padding: 16px 48px; border-radius: 10px; border: none; cursor: pointer; transition: opacity 0.2s, transform 0.1s; letter-spacing: -0.2px; }
+  #submitBtn:hover { opacity: 0.9; transform: translateY(-1px); }
+  #submitBtn:active { transform: translateY(0); }
+  #submitBtn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .progress-text { font-size: 13px; color: var(--muted); margin-top: 12px; }
+
+  /* PROGRESS BAR */
+  .progress-bar-wrap { position: fixed; top: 0; left: 0; right: 0; height: 3px; background: transparent; z-index: 100; }
+  .progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.4s ease; width: 0%; }
+
+  /* RESULTS */
+  #results { display: none; max-width: 720px; margin: 0 auto; padding: 0 20px 80px; }
+  .score-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 40px 32px; text-align: center; margin-bottom: 32px; position: relative; overflow: hidden; }
+  .score-card::before { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0%, rgba(91,110,245,0.12) 0%, transparent 70%); pointer-events: none; }
+  .score-circle { width: 120px; height: 120px; border-radius: 50%; margin: 0 auto 24px; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 800; position: relative; }
+  .score-ring { position: absolute; inset: 0; }
+  .score-label { font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+  .score-title { font-size: 26px; font-weight: 800; margin-bottom: 8px; }
+  .score-desc { font-size: 15px; color: var(--muted); line-height: 1.6; max-width: 480px; margin: 0 auto; }
+  .breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 32px; }
+  @media (max-width: 560px) { .breakdown { grid-template-columns: 1fr; } }
+  .breakdown-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+  .breakdown-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 10px; }
+  .breakdown-score { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
+  .breakdown-bar-bg { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .breakdown-bar { height: 100%; border-radius: 3px; transition: width 1s cubic-bezier(0.16,1,0.3,1); }
+  .tips-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 32px; }
+  .tips-title { font-size: 14px; font-weight: 700; margin-bottom: 16px; }
+  .tip { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; line-height: 1.5; color: var(--muted); }
+  .tip:last-child { border-bottom: none; }
+  .tip-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .share-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 32px; }
+  .share-btn { padding: 11px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface2); color: var(--text); transition: all 0.15s; }
+  .share-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .retry-btn { padding: 11px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; background: transparent; border: 1px solid var(--border); color: var(--muted); transition: all 0.15s; }
+  .retry-btn:hover { color: var(--text); border-color: var(--text); }
+
+  /* CTA */
+  .cta-section { background: linear-gradient(135deg, rgba(91,110,245,0.12) 0%, rgba(139,92,246,0.08) 100%); border: 1px solid rgba(91,110,245,0.25); border-radius: 16px; padding: 40px 32px; text-align: center; margin-bottom: 32px; }
+  .cta-section h3 { font-size: 22px; font-weight: 800; margin-bottom: 10px; }
+  .cta-section p { font-size: 15px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+  .cta-btn { display: inline-block; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; font-size: 15px; font-weight: 700; padding: 14px 36px; border-radius: 10px; text-decoration: none; transition: opacity 0.2s, transform 0.1s; }
+  .cta-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .footer { text-align: center; padding: 32px 24px; border-top: 1px solid var(--border); font-size: 13px; color: var(--muted); }
+  .footer a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
+
+<nav>
+  <div class="logo"><span>iOS</span> Interview Scorer</div>
+  <div class="badge">Built by a 13-year iOS veteran</div>
+</nav>
+
+<div id="quizSection">
+  <div class="hero">
+    <h1>Are You Ready for Your Next iOS Interview?</h1>
+    <p>Answer 16 quick questions and get a personalised score across Swift, architecture, CI/CD, and soft skills — in under 60 seconds.</p>
+    <div class="hero-meta">
+      <span class="pill active">Swift & Concurrency</span>
+      <span class="pill active">Architecture</span>
+      <span class="pill active">CI/CD & Tooling</span>
+      <span class="pill active">Soft Skills</span>
+    </div>
+  </div>
+
+  <div class="quiz-wrap" id="quizWrap"></div>
+
+  <div class="submit-row">
+    <button id="submitBtn" onclick="showResults()" disabled>Get My Score →</button>
+    <div class="progress-text" id="progressText">Answer all questions to see your score</div>
+  </div>
+</div>
+
+<div id="results">
+  <div class="score-card" id="scoreCard"></div>
+  <div class="breakdown" id="breakdownGrid"></div>
+  <div class="tips-card" id="tipsCard"></div>
+  <div class="share-row">
+    <button class="share-btn" onclick="shareScore()">📤 Share My Score</button>
+    <button class="retry-btn" onclick="retakeQuiz()">↺ Retake Quiz</button>
+  </div>
+  <div class="cta-section">
+    <h3>Want 24/7 AI that works for you while you code?</h3>
+    <p>SureThing is the autonomous AI agent built for developers — proactive inbox management, calendar coordination, and goal execution. One person should be enough.</p>
+    <a href="https://surething.io" class="cta-btn" target="_blank" rel="noopener">Try SureThing Free →</a>
+  </div>
+</div>
+
+<div class="footer">
+  Built by <a href="https://il.linkedin.com/in/yehudaorencohen" target="_blank">Oren Yehuda Cohen</a> — 13-year iOS veteran &nbsp;·&nbsp; Powered by <a href="https://surething.io" target="_blank">SureThing AI</a>
+</div>
+
+<script>
+const sections = [
+  {
+    id: "swift",
+    label: "Swift & Concurrency",
+    questions: [
+      {
+        q: "How comfortable are you explaining Swift's async/await and structured concurrency (Task, TaskGroup, actors)?",
+        opts: ["Never used it","Heard of it, not confident","Can explain basics","Can explain and write production code","Deep expertise — can discuss tradeoffs and pitfalls"],
+        scores: [0, 1, 2, 3, 4]
+      },
+      {
+        q: "Can you describe the difference between value types and reference types, and when to choose each?",
+        opts: ["Not sure","Roughly know the difference","Can explain clearly","Can explain + give real examples","Can explain, give examples, and discuss edge cases (COW, closures, etc.)"],
+        scores: [0, 1, 2, 3, 4]
+      },
+      {
+        q: "How well do you understand memory management (ARC, retain cycles, weak/unowned)?",
+        opts: ["Unclear on this","Know ARC exists","Can explain ARC","Can explain and spot retain cycles in code","Expert — can debug memory leaks and explain unowned vs weak tradeoffs"],
+        scores: [0, 1, 2, 3, 4]
+      },
+      {
+        q: "How confident are you with Swift generics and protocol-oriented programming?",
+        opts: ["Not confident","Basic understanding","Comfortable with common patterns","Use regularly in production","Deep — associated types, conditional conformance, etc."],
+        scores: [0, 1, 2, 3, 4]
+      }
+    ]
+  },
+  {
+    id: "architecture",
+    label: "Architecture & Design",
+    questions: [
+      {
+        q: "Can you explain and compare MVC, MVVM, and VIPER from experience?",
+        opts: ["Only know MVC","Know the names","Can explain differences","Built with 2+ of them","Expert — know tradeoffs, when to use each, and pitfalls"],
+        scores: [0, 1, 2, 3, 4]
+      },
+      {
+        q: "How do you approach dependency injection in iOS apps?",
+        opts: ["Not familiar","Know the concept","Can implement basic DI","Use DI containers or patterns regularly","Deep experience — constructor, property, and environment-based DI"],
+        scores: [0, 1, 2, 3, 4]
+      },
+      {
+        q: "How confident are you in designing for testability (unit tests, mocking, TDD)?",
+        opts: ["Rarely write tests","Write some unit tests","Good test coverage","Test-driven on most features","TDD advocate — mocks, stubs, integration tests, UI tests"],
+        scores: [0, 1, 2, 3, 4]
+      },
+      {
+        q: "Can you discuss app modularisation — splitting a large app into frameworks or Swift Packages?",
+        opts: ["Never done it","Aware of the concept","Done basic modularisation","Built modular apps in production","Expert — feature modules, shared modules, dependency graphs"],
+        scores: [0, 1, 2, 3, 4]
+      }
+    ]
+  },
+  {
+    id: "cicd",
+    label: "CI/CD & Tooling",
+    questions: [
+      {
+        q: "How experienced are you with Fastlane for build and release automation?",
+        opts: ["Never used it","Heard of it","Used it for basic lanes","Built comprehensive Fastlane pipelines","Expert — custom plugins, complex lane logic, multi-app setups"],
+        scores: [0, 1, 2, 3, 4]
+      },
+      {
+        q: "How comfortable are you with CI platforms (Bitrise, GitHub Actions, Xcode Cloud, Jenkins)?",
+        opts: ["No CI experience","Triggered pipelines but not set them up","Set up basic CI","Built and maintained full CI/CD pipelines","Multiple CI platforms, advanced configurations"],
+        scores: [0, 1, 2, 3, 4]
+      },
+      {
+        q: "How well do you understand code signing, provisioning profiles, and App Store distribution?",
+        opts: ["It's a mystery","Know the basics","Can handle most signing issues","Confident with all signing scenarios","Expert — automated signing, enterprise distribution, troubleshooting"],
+        scores: [0, 1, 2, 3, 4]
+      },
+      {
+        q: "How often do you use profiling tools (Instruments, memory graph, network inspector)?",
+        opts: ["Rarely","Only when there's a major issue","Occasionally during development","Regularly as part of my workflow","Expert — performance optimisation is a core part of my work"],
+        scores: [0, 1, 2, 3, 4]
+      }
+    ]
+  },
+  {
+    id: "soft",
+    label: "Soft Skills & Communication",
+    questions: [
+      {
+        q: "How do you handle code reviews — both giving and receiving feedback?",
+        opts: ["Uncomfortable with both","Only receive feedback","Give and receive, mostly technical","Structured, constructive, and educational","Senior-level — culture builder, mentor, sets team standards"],
+        scores: [0, 1, 2, 3, 4]
+      },
+      {
+        q: "Can you walk an interviewer through a technical decision you made and defend the tradeoffs?",
+        opts: ["Not confident doing this","Can describe what I built","Can explain the decision reasonably","Strong — clear narrative, tradeoffs, outcome","Excellent — concise, compelling, data-backed"],
+        scores: [0, 1, 2, 3, 4]
+      },
+      {
+        q: "How do you handle ambiguous requirements from a product team?",
+        opts: ["Wait for clarity","Ask questions and wait","Clarify, propose a plan","Clarify, propose options with tradeoffs","Drive alignment — bridge tech and product thinking"],
+        scores: [0, 1, 2, 3, 4]
+      },
+      {
+        q: "How prepared is your portfolio (GitHub, side projects, blog posts, talks)?",
+        opts: ["Nothing public","A few repos","Several repos and a project or two","Strong portfolio with apps and writing","Comprehensive — apps, tutorials, blog, community contributions"],
+        scores: [0, 1, 2, 3, 4]
+      }
+    ]
+  }
+];
+
+const state = {};
+const totalQ = sections.reduce((s, sec) => s + sec.questions.length, 0);
+
+function buildQuiz() {
+  const wrap = document.getElementById("quizWrap");
+  wrap.innerHTML = "";
+  sections.forEach(sec => {
+    const secDiv = document.createElement("div");
+    secDiv.style.marginBottom = "40px";
+    const label = document.createElement("div");
+    label.className = "section-label";
+    label.textContent = sec.label;
+    secDiv.appendChild(label);
+    sec.questions.forEach((q, qi) => {
+      const id = `${sec.id}_${qi}`;
+      const card = document.createElement("div");
+      card.className = "question-card";
+      const qtext = document.createElement("div");
+      qtext.className = "question-text";
+      qtext.textContent = q.q;
+      card.appendChild(qtext);
+      const opts = document.createElement("div");
+      opts.className = "options";
+      q.opts.forEach((opt, oi) => {
+        const btn = document.createElement("div");
+        btn.className = "option";
+        btn.setAttribute("data-id", id);
+        btn.setAttribute("data-score", q.scores[oi]);
+        btn.innerHTML = `<span class="dot"></span>${opt}`;
+        btn.onclick = () => selectOption(id, oi, q.scores[oi], btn);
+        opts.appendChild(btn);
+      });
+      card.appendChild(opts);
+      secDiv.appendChild(card);
+    });
+    wrap.appendChild(secDiv);
+  });
+}
+
+function selectOption(id, oi, score, el) {
+  document.querySelectorAll(`.option[data-id="${id}"]`).forEach(o => o.classList.remove("selected"));
+  el.classList.add("selected");
+  state[id] = score;
+  updateProgress();
+}
+
+function updateProgress() {
+  const answered = Object.keys(state).length;
+  const pct = (answered / totalQ) * 100;
+  document.getElementById("progressBar").style.width = pct + "%";
+  const btn = document.getElementById("submitBtn");
+  if (answered === totalQ) {
+    btn.disabled = false;
+    document.getElementById("progressText").textContent = "All done! Click to see your score.";
+  } else {
+    btn.disabled = true;
+    document.getElementById("progressText").textContent = `${answered} of ${totalQ} answered`;
+  }
+}
+
+function calcScores() {
+  const out = {};
+  sections.forEach(sec => {
+    let total = 0;
+    let max = 0;
+    sec.questions.forEach((q, qi) => {
+      const id = `${sec.id}_${qi}`;
+      total += (state[id] || 0);
+      max += Math.max(...q.scores);
+    });
+    out[sec.id] = { total, max, pct: Math.round((total / max) * 100), label: sec.label };
+  });
+  const totalScore = Object.values(out).reduce((s, v) => s + v.total, 0);
+  const totalMax = Object.values(out).reduce((s, v) => s + v.max, 0);
+  out.overall = Math.round((totalScore / totalMax) * 100);
+  return out;
+}
+
+function getGrade(pct) {
+  if (pct >= 85) return { label: "Interview-Ready", color: "#22c55e", desc: "You're in strong shape. Focus on your delivery and portfolio polish — you've got the substance." };
+  if (pct >= 65) return { label: "Almost There", color: "#3b82f6", desc: "You have solid foundations with a few gaps. Targeted prep in your weaker areas will make a big difference." };
+  if (pct >= 45) return { label: "Keep Building", color: "#eab308", desc: "Good base, but a few key areas need attention before you're at your best. Use these results to prioritise your prep." };
+  return { label: "Time to Prep", color: "#ef4444", desc: "Use this as your roadmap — the gaps are clear and very fixable. Start with Swift fundamentals and architecture." };
+}
+
+function getTips(scores) {
+  const tips = [];
+  const weak = Object.entries(scores).filter(([k]) => k !== "overall").sort((a, b) => a[1].pct - b[1].pct);
+  const [w1, w2] = weak;
+  const tipMap = {
+    swift: ["Deep-dive Swift concurrency: read the Swift Evolution proposals for async/await and actors.", "Practice explaining memory management out loud — ARC, retain cycles, and unowned vs weak."],
+    architecture: ["Build a small demo app in MVVM and VIPER to compare them firsthand.", "Practice writing testable code: build a feature with protocol-based dependencies you can mock."],
+    cicd: ["Set up a Fastlane lane for your personal project — even just beta builds.", "Configure a GitHub Actions workflow for your next project to get hands-on CI experience."],
+    soft: ["Film yourself doing a mock technical walkthrough. Review and refine your narrative.", "Publish one GitHub repo or blog post this week — portfolio compounds over time."]
+  };
+  tips.push({ icon: "🎯", text: `Weakest area: **${w1[1].label}** (${w1[1].pct}%). ${tipMap[w1[0]][0]}` });
+  tips.push({ icon: "📈", text: `Second focus: **${w2[1].label}** (${w2[1].pct}%). ${tipMap[w2[0]][1]}` });
+  tips.push({ icon: "💡", text: "Practice 2–3 STAR-format stories (Situation, Task, Action, Result) for behavioural questions." });
+  tips.push({ icon: "🔗", text: "Make your GitHub profile reflect your best work — update READMEs and pin your strongest repos." });
+  return tips;
+}
+
+const sectionColors = { swift: "#5b6ef5", architecture: "#8b5cf6", cicd: "#06b6d4", soft: "#22c55e" };
+
+function showResults() {
+  const scores = calcScores();
+  const grade = getGrade(scores.overall);
+
+  document.getElementById("quizSection").style.display = "none";
+  const res = document.getElementById("results");
+  res.style.display = "block";
+
+  // Score card
+  const sc = document.getElementById("scoreCard");
+  sc.innerHTML = `
+    <div style="margin-bottom:8px;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:${grade.color}">${grade.label}</div>
+    <div style="font-size:72px;font-weight:900;line-height:1;color:${grade.color};margin-bottom:16px">${scores.overall}<span style="font-size:28px;color:var(--muted)">%</span></div>
+    <div style="font-size:18px;font-weight:700;margin-bottom:10px">Overall Interview Readiness</div>
+    <div style="font-size:15px;color:var(--muted);max-width:480px;margin:0 auto;line-height:1.65">${grade.desc}</div>
+  `;
+
+  // Breakdown
+  const bg = document.getElementById("breakdownGrid");
+  bg.innerHTML = "";
+  sections.forEach(sec => {
+    const d = scores[sec.id];
+    const color = sectionColors[sec.id];
+    const card = document.createElement("div");
+    card.className = "breakdown-card";
+    card.innerHTML = `
+      <div class="breakdown-title">${d.label}</div>
+      <div class="breakdown-score" style="color:${color}">${d.pct}%</div>
+      <div class="breakdown-bar-bg"><div class="breakdown-bar" style="width:0%;background:${color}" data-target="${d.pct}"></div></div>
+    `;
+    bg.appendChild(card);
+  });
+  setTimeout(() => {
+    document.querySelectorAll(".breakdown-bar").forEach(b => b.style.width = b.dataset.target + "%");
+  }, 100);
+
+  // Tips
+  const tips = getTips(scores);
+  const tc = document.getElementById("tipsCard");
+  tc.innerHTML = `<div class="tips-title">📋 Your Personalised Action Plan</div>` +
+    tips.map(t => `<div class="tip"><span class="tip-icon">${t.icon}</span><span>${t.text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")}</span></div>`).join("");
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  window._lastScore = scores.overall;
+  window._lastGrade = grade.label;
+}
+
+function shareScore() {
+  const text = `I just scored ${window._lastScore}% on the iOS Interview Readiness Scorer — ${window._lastGrade}! Check yours: https://cohen72.github.io/ios-interview-scorer/`;
+  if (navigator.share) { navigator.share({ text }); }
+  else if (navigator.clipboard) { navigator.clipboard.writeText(text).then(() => alert("Score copied to clipboard!")); }
+  else { window.open("https://twitter.com/intent/tweet?text=" + encodeURIComponent(text), "_blank"); }
+}
+
+function retakeQuiz() {
+  Object.keys(state).forEach(k => delete state[k]);
+  document.getElementById("results").style.display = "none";
+  document.getElementById("quizSection").style.display = "block";
+  document.getElementById("progressBar").style.width = "0%";
+  document.getElementById("submitBtn").disabled = true;
+  document.getElementById("progressText").textContent = "Answer all questions to see your score";
+  buildQuiz();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+buildQuiz();
+</script>
+</body>
+</html>
